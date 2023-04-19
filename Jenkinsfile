@@ -1,79 +1,40 @@
 pipeline {
-
     agent any
-
-    tools {
-        maven "maven-3.6.2"
-    }
-
-    environment {
-        GIT_URL_HTTP = "https://github.com/PeretzBatel/lib0.git"
-    }
-
     stages {
-        stage("Calculate & Set version") {
+        stage('Calculate & Set Version') {
             when {
-                branch "release/*"
+                branch 'release/*'
             }
             steps {
                 script {
-                    majorMinor = env.BRANCH_NAME.split("/")[1]  // x.y
-                    withCredentials([[$class: "UsernamePasswordMultiBinding", credentialsId: "gitlab-pass", usernameVariable: "GL_USER", passwordVariable: "GL_PASS"]]) {
-                        sh "git fetch http://${GL_USER}:${GL_PASS}@${env.GIT_URL_HTTP} --tags"
-                    }
-                    previousTag = sh(script: "git describe --tags --abbrev=0 | grep -E '^$majorMinor' || true", returnStdout: true).trim()  // x.y.z or empty string. `grep` is used to prevent returning a tag from another release branch; `true` is used to not fail the pipeline if grep returns nothing.
-
-                    if (!previousTag) {
-                        patch = "0"
-                    } else {
-                        patch = (previousTag.tokenize(".")[2].toInteger() + 1).toString()
-                    }
-                    env.VERSION = majorMinor + "." + patch
-
-                    sh "mvn versions:set -DnewVersion=$env.VERSION"
+                    def branchName = env.BRANCH_NAME
+                    def versionParts = branchName.split('/')
+                    def major = versionParts[1]
+                    def minor = versionParts[2]
+                    def patch = versionParts[3].toInteger() + 1
+                    def newVersion = "${major}.${minor}.${patch}"
+                    sh "mvn versions:set -DnewVersion=${newVersion}"
+                    sh "git commit -a -m 'Update version to ${newVersion}'"
+                    sh "git push"
                 }
             }
         }
-
-        stage("Build & Test") {
+        stage('Build & Test') {
             steps {
-                sh "mvn verify"
-                
+                sh "mvn clean install"
             }
         }
-
-        stage("Publish") {
-            when {
-                anyOf {
-                    branch "main"
-                    branch "release/*"
-                }
-            }
-        steps {
-            configFileProvider([configFile(fileId: 'maven_settings', variable: 'MAVEN_SETTINGS')]) {
-    // some block
-
-            sh "mvn -s $MAVEN_SETTINGS deploy"
-            }
-         
-            }
+    }
+    post {
+        success {
+            slackSend channel: '#builds',
+                      color: '#36a64f',
+                      message: "Build Succeeded for ${env.JOB_NAME} (${env.BUILD_NUMBER})"
         }
-
-//         stage("Tag") {
-//             when {
-//                 branch "release/*"
-//             }
-//             steps {
-//                 script {
-//                     // sshagent(credentials: ["jenkins-ssh"]) {
-//                     withCredentials([[$class: "UsernamePasswordMultiBinding", credentialsId: "gitlab-userpass", usernameVariable: "GL_USER", passwordVariable: "GL_PASS"]]) {
-//                         sh "git clean -f -x"
-//                         sh "git tag -a ${env.VERSION} -m 'version ${env.VERSION}'"
-//                         sh "git push http://${GL_USER}:${GL_PASS}@${env.GIT_URL_HTTP} --tag"
-//                     }
-//                 }
-//             }
-//         }
-
+        failure {
+            slackSend channel: '#builds',
+                      color: '#ff0000',
+                      message: "Build Failed for ${env.JOB_NAME} (${env.BUILD_NUMBER})"
+        }
     }
 }

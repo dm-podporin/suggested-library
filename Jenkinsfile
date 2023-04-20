@@ -16,6 +16,7 @@ pipeline {
                     def version = branchName.split('/')[1].toString()
                     echo version
                     sh "mvn versions:set -DnewVersion=${version}"
+                    sh "git checkout dev"
                     sh "git commit -a -m 'Update version to ${version}'"
                     sh "git push"
                 }

@@ -1,6 +1,8 @@
 pipeline {
     agent any
 
+    tool name: 'maven_3.9', type: 'maven'
+
     stages {
         stage('Calculate & Set Version') {
             when {

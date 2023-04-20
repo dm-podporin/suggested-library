@@ -2,9 +2,9 @@ pipeline {
     agent any
 
     tools {
-        maven 'Maven 3.6.2'
+        maven 'maven_3.9'
     }
-    
+
     stages {
         stage('Calculate & Set Version') {
             when {

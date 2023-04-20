@@ -9,12 +9,9 @@ pipeline {
             steps {
                 script {
                     def branchName = env.BRANCH_NAME
-                    def versionParts = branchName.split('/')
-                    def major = versionParts[1]
-                    def minor = versionParts[2]
-                    def patch = versionParts[3].toInteger() + 1
+                    def version = branchName.split('/')[1]
                     def newVersion = "${major}.${minor}.${patch}"
-                    sh "mvn versions:set -DnewVersion=${newVersion}"
+                    sh "mvn versions: set -DnewVersion=${newVersion}"
                     sh "git commit -a -m 'Update version to ${newVersion}'"
                     sh "git push"
                 }

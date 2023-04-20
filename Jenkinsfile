@@ -13,7 +13,7 @@ pipeline {
             steps {
                 script {
                     def branchName = env.BRANCH_NAME
-                    def version = branchName.split('/')[1]
+                    def version = branchName.split('/')[1].toString()
                     echo version
                     sh "mvn versions: set -DnewVersion=${version}"
                     sh "git commit -a -m 'Update version to ${version}'"

@@ -27,8 +27,8 @@ pipeline {
     stage('Push to GitHub') {
       steps {
         script {
-            def changes = sh(script: "git diff --quiet", returnStdout: true)
-            if (changes) {
+            def changes = sh(script: "git diff --quiet", returnStatus: true)
+            if (changes === 1) {
                 withCredentials([gitUsernamePassword(jobCredentialId:'dmpodporin-github-creds', gitToolName:'Default')]) {
                 sh "git add ."
                 sh "git commit -m 'Version automatically update to ${version}'"

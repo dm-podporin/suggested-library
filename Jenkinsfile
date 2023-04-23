@@ -27,7 +27,7 @@ pipeline {
     stage('Push to GitHub') {
       steps {
         script {
-          def changes = sh "git diff -q"
+          def changes = sh "git diff --quiet"
           if (changes) {
             withCredentials([gitUsernamePassword(jobCredentialId:'dmpodporin-github-creds', gitToolName:'Default')]) {
               sh "git add ."

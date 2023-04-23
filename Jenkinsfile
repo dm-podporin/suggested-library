@@ -21,7 +21,8 @@ pipeline {
         }
         stage('Build & Tests') {
             steps {
-                sh "mvn clean install"
+                sh "mvn test"
+                sh "mvn veryfy"
             }
         }
     }

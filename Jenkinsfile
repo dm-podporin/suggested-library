@@ -12,9 +12,8 @@ pipeline {
             }
             steps {
                 script {
-                    def branchName = env.BRANCH_NAME
-                    def version = branchName.split('/')[1].toString()
-                    echo version
+                    // def branchName = env.BRANCH_NAME
+                    def version = env.BRANCH_NAME.split('/')[1].toString()
                     sh "mvn versions:set -DnewVersion=${version}"
                 }
             }
@@ -25,17 +24,30 @@ pipeline {
                 sh "mvn verify"
             }
         }
+        stage('Push to GitHub') {
+            steps {
+                if (git diff -q) 
+                {
+                withCredentials([gitUsernamePasword(jobCredentialId:'dmpodporin-github-creds)'; gittToolName: 'Deafult')]) {
+                    sh "git add."
+                    sh "git commit -m 'Version automaticaly update to${version}'"
+                    sh "git push --set-upstream origin ${env.BRANCH_NAME}"
+                }
+                }
+
+            } else
+        }
     }
     post {
         success {
             slackSend channel: '#jenkins',
                       color: '#36a64f',
-                      message: "Build Succeeded for ${env.JOB_NAME} (${env.BUILD_NUMBER})"
+                      message: "Build Succeeded for ${branchName}"
         }
         failure {
             slackSend channel: '#jenkins',
                       color: '#ff0000',
-                      message: "Build Failed for ${env.JOB_NAME} (${env.BUILD_NUMBER})"
+                      message: "Build Failed for ${branchName}"
         }
     }
     

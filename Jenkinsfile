@@ -31,7 +31,7 @@ pipeline {
             if (changes) {
                 withCredentials([gitUsernamePassword(credentialsId:'dmpodporin-github-creds', gitToolName:'Default')]) {
                 sh "git add ."
-                sh "git checkout -b release/5.0"
+                sh "git checkout -b ${env.BRANCH_NAME}"
                 sh "git commit -m 'Version automatically update to ${version}'"
                 sh "git push --set-upstream origin ${env.BRANCH_NAME}"
             }

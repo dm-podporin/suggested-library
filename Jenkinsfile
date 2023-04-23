@@ -28,12 +28,12 @@ pipeline {
     }
     post {
         success {
-            slackSend channel: '#builds',
+            slackSend channel: '#jenkins',
                       color: '#36a64f',
                       message: "Build Succeeded for ${env.JOB_NAME} (${env.BUILD_NUMBER})"
         }
         failure {
-            slackSend channel: '#builds',
+            slackSend channel: '#jenkins',
                       color: '#ff0000',
                       message: "Build Failed for ${env.JOB_NAME} (${env.BUILD_NUMBER})"
         }

@@ -29,7 +29,7 @@ pipeline {
         script {
             def changes = sh(script: "git diff --quiet", returnStatus: true)
             if (changes) {
-                withCredentials([gitUsernamePassword(jobCredentialsId:'dmpodporin-github-creds', gitToolName:'Default')]) {
+                withCredentials([gitUsernamePassword(usernamePassword:'dmpodporin-github-creds', gitToolName:'Default')]) {
                 sh "git add ."
                 sh "git commit -m 'Version automatically update to ${version}'"
                 sh "git push --set-upstream origin ${env.BRANCH_NAME}"

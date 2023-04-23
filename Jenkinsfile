@@ -27,11 +27,12 @@ pipeline {
     stage('Push to GitHub') {
       steps {
         script {
-          if (sh script: "git diff --quiet", returnStatus: true) {
-            withCredentials([gitUsernamePassword(jobCredentialId:'dmpodporin-github-creds', gitToolName:'Default')]) {
-              sh "git add ."
-              sh "git commit -m 'Version automatically update to ${version}'"
-              sh "git push --set-upstream origin ${env.BRANCH_NAME}"
+            def changes = sh(script: "git diff --quiet", returnStdout: true)
+            if (sh script: "git diff --quiet", returnStatus: true) {
+                withCredentials([gitUsernamePassword(jobCredentialId:'dmpodporin-github-creds', gitToolName:'Default')]) {
+                sh "git add ."
+                sh "git commit -m 'Version automatically update to ${version}'"
+                sh "git push --set-upstream origin ${env.BRANCH_NAME}"
             }
           }
         }

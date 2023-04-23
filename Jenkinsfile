@@ -28,7 +28,7 @@ pipeline {
             steps {
                 def changes = sh "git diff -q"
                 if (changes) {
-                withCredentials([gitUsernamePasword(jobCredentialId:'dmpodporin-github-creds)'; gittToolName:'Deafult')]) {
+                withCredentials([gitUsernamePasword(jobCredentialId:'dmpodporin-github-creds)', gittToolName:'Deafult')]) {
                     sh "git add."
                     sh "git commit -m 'Version automaticaly update to${version}'"
                     sh "git push --set-upstream origin ${env.BRANCH_NAME}"

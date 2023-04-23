@@ -34,9 +34,9 @@ pipeline {
                     sh "git commit -m 'Version automaticaly update to${version}'"
                     sh "git push --set-upstream origin ${env.BRANCH_NAME}"
                 }
-                }
+                } else
 
-            } else
+            }
         }
     }
     post {

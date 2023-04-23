@@ -28,7 +28,7 @@ pipeline {
       steps {
         script {
             def changes = sh(script: "git diff --quiet", returnStdout: true)
-            if (change === 1) {
+            if (changes === 1) {
                 withCredentials([gitUsernamePassword(jobCredentialId:'dmpodporin-github-creds', gitToolName:'Default')]) {
                 sh "git add ."
                 sh "git commit -m 'Version automatically update to ${version}'"
